@@ -1,0 +1,149 @@
+<!doctype HTML>
+<html>
+<head>
+<meta charset='UTF-8'>
+<title>Create random checker board pattern pdf</title>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js'></script>
+<script>
+var page_formats = {'a4': {'width':210, 'height':297},
+                    'custom': {}};
+var defaults = {'page_format': 'a4',
+                'box_is_square': true,
+                'box_width': 10,
+                'box_height': 10,
+                'margin_is_equal': true,
+                'margin_top': 10,
+                'margin_bottom': 10,
+                'margin_left': 10,
+                'margin_right': 10,
+                'pages': 1};
+</script>
+<style>
+input[type^='number'] {
+  width: 40px;
+}
+</style>
+</head>
+<body>
+All units in mm. <button name='restore_defaults' onclick='restoreDefaults()'>restore defaults</button><br>
+Page format: <select name='page_format' id='page_format' onchange='pageFormatSelected()'/>
+(Page Width: <input id='page_width' type='number' min='1' max='1000' disabled/>,
+Page Height: <input id='page_height' type='number' min='1' max='1000' disabled/>)<br/>
+Box dimension (Square<input type='checkbox' id='square' value='square' checked='checked' onchange='setSquareBox()'/>):
+Width: <input id='box_width' type='number' min='1' onchange='setSquareBox()'/>,
+Height: <input id='box_height' type='number' min='1'/><br/>
+Page Margin (Equal<input type='checkbox' id='equal_margin' value='equal_margin' checked='checked' onchange='setMarginEqual()'/>):
+Top: <input id='margin_top' type='number' min='1' onchange='setMarginEqual()'/>,
+Bottom: <input id='margin_bottom' type='number' min='1'/>,
+Left: <input id='margin_left' type='number' min='1'/>,
+Right: <input id='margin_right' type='number' min='1'/><br/>
+Number of pages: <input id='pages' type='number' min='1' max='999'/><br/><br/>
+<button name='generate_pattern' onclick='generatePattern()'>generate pattern</button>
+<script>
+var inputs = {
+  'page_format': document.getElementById('page_format'),
+  'page_width': document.getElementById('page_width'),
+  'page_height': document.getElementById('page_height'),
+  'box_is_square': document.getElementById('square'),
+  'box_width': document.getElementById('box_width'),
+  'box_height': document.getElementById('box_height'),
+  'margin_is_equal': document.getElementById('equal_margin'),
+  'margin_top': document.getElementById('margin_top'),
+  'margin_bottom': document.getElementById('margin_bottom'),
+  'margin_left': document.getElementById('margin_left'),
+  'margin_right': document.getElementById('margin_right'),
+  'pages': document.getElementById('pages')
+};
+for (var page_format in page_formats) {
+  var new_option = document.createElement('option');
+  new_option.setAttribute('value', page_format);
+  new_option.innerText = page_format;
+  inputs.page_format.appendChild(new_option);
+}
+function restoreDefaults() {
+  inputs.page_format.value = defaults.page_format;
+  pageFormatSelected();
+  inputs.box_is_square.checked = defaults.box_is_square;
+  inputs.box_width.value = defaults.box_width;
+  inputs.box_height.value = defaults.box_height;
+  setSquareBox();
+  inputs.margin_is_equal.checked = defaults.margin_is_equal;
+  inputs.margin_top.value = defaults.margin_top;
+  inputs.margin_bottom.value = defaults.margin_bottom;
+  inputs.margin_left.value = defaults.margin_left;
+  inputs.margin_right.value = defaults.margin_right;
+  inputs.pages.value = defaults.pages;
+  setMarginEqual();
+}
+function pageFormatSelected() {
+  if (inputs.page_format.value == 'custom') {
+    inputs.page_width.disabled = false;
+    inputs.page_height.disabled = false;
+  } else {
+    inputs.page_width.disabled = true;
+    inputs.page_height.disabled = true;
+    inputs.page_width.value = page_formats[inputs.page_format.value].width;
+    inputs.page_height.value = page_formats[inputs.page_format.value].height;
+  }
+}
+function setSquareBox() {
+  if (inputs.box_is_square.checked) {
+    inputs.box_height.value = defaults.box_height;
+    inputs.box_height.disabled = true;
+  } else {
+    inputs.box_height.disabled = false;
+  }
+}
+function setMarginEqual() {
+  if (inputs.margin_is_equal.checked) {
+    inputs.margin_bottom.value = inputs.margin_top.value;
+    inputs.margin_left.value = inputs.margin_top.value;
+    inputs.margin_right.value = inputs.margin_top.value;
+    inputs.margin_bottom.disabled = true;
+    inputs.margin_left.disabled = true;
+    inputs.margin_right.disabled = true;
+  } else {
+    inputs.margin_bottom.disabled = false;
+    inputs.margin_left.disabled = false;
+    inputs.margin_right.disabled = false;
+  }
+}
+function generatePattern() {
+  var doc = new jsPDF('p', 'mm', [inputs.page_height.value, inputs.page_width.value]);
+  doc.setFillColor(0);
+  var max_pages = Number(inputs.pages.value);
+  var min_x = Number(inputs.margin_left.value);
+  var min_y = Number(inputs.margin_top.value);
+  var max_x = (Number(inputs.page_width.value) - Number(inputs.margin_right.value));
+  var max_y = (Number(inputs.page_height.value) - Number(inputs.margin_bottom.value));
+  var box_width = Number(inputs.box_width.value);
+  var box_height = Number(inputs.box_height.value)
+  for (var page_number=1; page_number<=max_pages; page_number++) {
+    for (var x=min_x; x<max_x; x=x+box_width) {
+      for (var y=min_y; y<max_y; y=y+box_height) {
+        if (Math.random() > 0.5) {
+          console.log (x,y);
+          doc.rect(x, y, box_width, box_height, 'F')
+        }
+      }
+    }
+    if (page_number<inputs.pages.value) {
+      doc.addPage();
+    }
+  }
+  var file_name = inputs.page_format.value;
+  if (inputs.page_format.value='custom') {
+    file_name = file_name + '(' + inputs.page_width.value + 'x' + inputs.page_height.value + ')';
+  }
+  file_name = file_name + ';' + box_width;
+  file_name = file_name + 'x' + box_height + ' box; ';
+  file_name = file_name + inputs.margin_left.value + 'L,'
+                        + inputs.margin_right.value + 'R,'
+                        + inputs.margin_top.value + 'T,'
+                        + inputs.margin_bottom.value + 'B margin.pdf';
+  doc.save(file_name);
+}
+restoreDefaults();
+</script>
+</body>
+</html>
