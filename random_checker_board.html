@@ -4,6 +4,15 @@
 <meta charset='UTF-8'>
 <title>Create random checker board pattern pdf</title>
 <script src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.3/jspdf.min.js'></script>
+<style>
+  input[type="number"] {
+    min-width: 4em;
+  }
+  * {
+    margin-left: 0.5em;
+    margin-top: 0.75em;
+  }
+</style>
 <script>
 var page_formats = {'a4': {'width':210, 'height':297},
                     'custom': {}};
@@ -25,7 +34,7 @@ input[type^='number'] {
 </style>
 </head>
 <body>
-All units in mm. <button name='restore_defaults' onclick='restoreDefaults()'>restore defaults</button><br>
+All units in mm. <button name='restore_defaults' onclick='restoreDefaults()'>Restore defaults</button><br>
 Page format: <select name='page_format' id='page_format' onchange='pageFormatSelected()'></select>
 (Page Width: <input id='page_width' type='number' min='1' max='1000' disabled/>,
 Page Height: <input id='page_height' type='number' min='1' max='1000' disabled/>)<br/>
@@ -38,7 +47,7 @@ Bottom: <input id='margin_bottom' type='number' min='1'/>,
 Left: <input id='margin_left' type='number' min='1'/>,
 Right: <input id='margin_right' type='number' min='1'/><br/>
 Number of pages: <input id='pages' type='number' min='1' max='999'/><br/><br/>
-<button name='generate_pattern' onclick='generatePattern()'>generate pattern</button>
+<button name='generate_pattern' onclick='generatePattern()'>Generate Pattern</button>
 <script>
 var inputs = {
   'page_format': document.getElementById('page_format'),
